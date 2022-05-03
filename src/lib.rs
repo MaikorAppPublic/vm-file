@@ -114,28 +114,18 @@ mod tests {
         };
         let bytes = maikor_game.as_bytes().unwrap();
         assert_eq!(bytes.len(), 3 + 16 + 1 + 4 + 6 + 8192);
+        #[rustfmt::skip]
         assert_eq!(
             &bytes[0..=18],
             &[
                 ID_HEADER[0],
                 ID_HEADER[1],
                 FILE_FORMAT_VER,
-                0,
-                1,
-                0,
-                3, //min, compile
-                0,
-                0,
-                0,
-                1, //id
-                0,
-                10, //build
-                1,
-                4,
-                6, //ver len, name len, author len
-                0,
-                0,
-                0, //bank counts
+                0, 1, 0, 3, //min, compile
+                0, 0, 0, 1, //id
+                0, 10, //build
+                1, 4, 6, //ver len, name len, author len
+                0, 0, 0, //bank counts
             ]
         );
         assert_eq!(&bytes[19..=22], "Test".as_bytes());
@@ -146,30 +136,20 @@ mod tests {
 
     #[test]
     fn basic_read() {
+        #[rustfmt::skip]
         let mut bytes = vec![
             ID_HEADER[0],
             ID_HEADER[1],
             FILE_FORMAT_VER,
-            0,
-            56,
-            1,
-            0, //min, compile
-            0,
-            2,
-            45,
-            10, //id
-            0,
-            32, //build
-            2,
-            3,
-            1, //ver len, name len, author len
-            0,
-            1,
-            0, //code, ram, atlas bank counts
+            0, 56, 1, 0, //min, compile
+            0, 2, 45, 10, //id
+            0, 32, //build
+            2, 3, 1, //ver len, name len, author len
+            0, 1, 0, //code, ram, atlas bank counts
         ];
-        bytes.extend_from_slice(&"btr".as_bytes());
-        bytes.extend_from_slice(&"t".as_bytes());
-        bytes.extend_from_slice(&"01".as_bytes());
+        bytes.extend_from_slice("btr".as_bytes());
+        bytes.extend_from_slice("t".as_bytes());
+        bytes.extend_from_slice("01".as_bytes());
         let summary = summary_from_bytes(bytes.clone());
         assert_eq!(summary.header.id, [0, 2, 45, 10]);
         assert_eq!(summary.header.id(), 142602);
@@ -220,14 +200,12 @@ mod tests {
             atlas_banks: vec![vec![rand_u8(); sizes::ATLAS], vec![rand_u8(); 500]],
         };
         let bytes = maikor_game.as_bytes().unwrap();
+        #[rustfmt::skip]
         assert_eq!(
             bytes.len(),
             FILE_HEADER_LENGTH
                 + MAIKOR_HEADER_LENGTH
-                + 1
-                + 8
-                + 10
-                + 4
+                + 1 + 8 + 10 + 4
                 + sizes::CODE_BANK
                 + sizes::ATLAS
                 + 500
