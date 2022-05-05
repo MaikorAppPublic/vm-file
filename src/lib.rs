@@ -5,9 +5,9 @@ mod game_header;
 mod read_write_impl;
 
 use crate::GameFileError::{FileFormatInvalid, InvalidFileVersion};
+use maikor_language::mem::sizes;
 use std::fmt::Debug;
 use std::io;
-use maikor_language::mem::sizes;
 use thiserror::Error;
 
 const ID_HEADER: [u8; 2] = [0xFD, 0xA1];
@@ -81,8 +81,8 @@ pub struct GameFile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::BufReader;
     use maikor_language::mem::sizes;
+    use std::io::BufReader;
 
     fn rand_u8() -> u8 {
         fastrand::u8(0..=255)
