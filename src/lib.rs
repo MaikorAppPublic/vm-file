@@ -5,9 +5,9 @@ mod game_header;
 mod read_write_impl;
 
 use crate::GameFileError::{FileFormatInvalid, InvalidFileVersion};
-use maikor_vm_core::constants::mem::sizes;
 use std::fmt::Debug;
 use std::io;
+use maikor_language::mem::sizes;
 use thiserror::Error;
 
 const ID_HEADER: [u8; 2] = [0xFD, 0xA1];
@@ -74,15 +74,15 @@ pub struct GameFile {
     pub author: String,
     pub ram_bank_count: usize,
     pub main_code: Vec<u8>,
-    pub code_banks: Vec<[u8; sizes::CODE_BANK]>,
+    pub code_banks: Vec<[u8; sizes::CODE_BANK as usize]>,
     pub atlas_banks: Vec<Vec<u8>>,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use maikor_vm_core::constants::mem::sizes;
     use std::io::BufReader;
+    use maikor_language::mem::sizes;
 
     fn rand_u8() -> u8 {
         fastrand::u8(0..=255)
@@ -108,7 +108,7 @@ mod tests {
             name: "Test".to_string(),
             author: "Tester".to_string(),
             ram_bank_count: 0,
-            main_code: vec![0; sizes::CODE_BANK],
+            main_code: vec![0; sizes::CODE_BANK as usize],
             code_banks: vec![],
             atlas_banks: vec![],
         };
@@ -169,7 +169,7 @@ mod tests {
         assert_eq!(summary.author, String::from("t"));
         assert_eq!(summary.version, String::from("01"));
 
-        bytes.extend_from_slice(&[0; sizes::CODE_BANK]);
+        bytes.extend_from_slice(&[0; sizes::CODE_BANK as usize]);
         let game = maikor_from_bytes(bytes);
         assert_eq!(game.id, 142602);
         assert_eq!(game.min_maikor_version, 56);
@@ -181,7 +181,7 @@ mod tests {
         assert_eq!(game.version, String::from("01"));
         assert_eq!(game.name, String::from("btr"));
         assert_eq!(game.author, String::from("t"));
-        assert_eq!(game.main_code, &[0; sizes::CODE_BANK]);
+        assert_eq!(game.main_code, &[0; sizes::CODE_BANK as usize]);
     }
 
     #[test]
@@ -195,9 +195,9 @@ mod tests {
             name: "WaR Test".to_string(),
             author: "WaR Tester".to_string(),
             ram_bank_count: 2,
-            main_code: vec![rand_u8(); sizes::CODE_BANK],
+            main_code: vec![rand_u8(); sizes::CODE_BANK as usize],
             code_banks: vec![],
-            atlas_banks: vec![vec![rand_u8(); sizes::ATLAS], vec![rand_u8(); 500]],
+            atlas_banks: vec![vec![rand_u8(); sizes::ATLAS as usize], vec![rand_u8(); 500]],
         };
         let bytes = maikor_game.as_bytes().unwrap();
         #[rustfmt::skip]
@@ -206,8 +206,8 @@ mod tests {
             FILE_HEADER_LENGTH
                 + MAIKOR_HEADER_LENGTH
                 + 1 + 8 + 10 + 4
-                + sizes::CODE_BANK
-                + sizes::ATLAS
+                + sizes::CODE_BANK as usize
+                + sizes::ATLAS as usize
                 + 500
         );
         let game = maikor_from_bytes(bytes);

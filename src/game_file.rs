@@ -1,10 +1,10 @@
 use crate::file_utils::{read_block, read_multiple_blocks, read_string};
 use crate::GameFileError::InvalidHeader;
 use crate::{GameFile, GameFileError, GameFileHeader, FILE_FORMAT_VER, ID_HEADER};
-use maikor_vm_core::constants::mem::sizes;
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, BufWriter, Write};
 use std::{fmt, io};
+use maikor_language::mem::sizes;
 
 impl GameFile {
     pub fn from_reader<R: BufRead>(mut reader: R) -> Result<GameFile, GameFileError> {
@@ -21,10 +21,10 @@ impl GameFile {
                 .iter()
                 .map(|arr| u16::from_be_bytes([arr[0], arr[1]]))
                 .collect();
-        let main_code = read_block(&mut reader, sizes::CODE_BANK)?;
+        let main_code = read_block(&mut reader, sizes::CODE_BANK as usize)?;
         let code_banks = read_multiple_blocks(
             &mut reader,
-            sizes::CODE_BANK,
+            sizes::CODE_BANK as usize,
             header.code_bank_count as usize,
         )?
         .iter()
