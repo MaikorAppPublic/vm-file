@@ -1,8 +1,12 @@
 ## Pre-alpha
 
+### 0.1.3
+
+- Update `maikor-language` dep (no effect on this library)
+
 ### 0.1.2
 
-- Update `maikor-language` dep
+- Update `maikor-language` dep (no effect on this library)
 
 ### 0.1.1
 
