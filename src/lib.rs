@@ -130,7 +130,7 @@ mod tests {
             atlas_banks: vec![],
         };
         let bytes = maikor_game.as_bytes().unwrap();
-        assert_eq!(bytes.len(), 2+1+2+2+4+2+6+4+6+1+ 8700);
+        assert_eq!(bytes.len(), 2 + 1 + 2 + 2 + 4 + 2 + 6 + 4 + 6 + 1 + 8700);
         #[rustfmt::skip]
         assert_eq!(
             &bytes[0..=18],
