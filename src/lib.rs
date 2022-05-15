@@ -6,6 +6,7 @@ mod read_write_impl;
 
 use crate::GameFileError::{FileFormatInvalid, InvalidFileVersion};
 use maikor_language::mem::sizes;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::io;
 use thiserror::Error;
@@ -15,7 +16,10 @@ const FILE_HEADER_LENGTH: usize = 3;
 const MAIKOR_HEADER_LENGTH: usize = 16;
 const FILE_FORMAT_VER: u8 = 1;
 const MIN_FILE_SIZE: u64 = MAIKOR_HEADER_LENGTH as u64 + sizes::CODE_BANK as u64 + 3;
-const MAX_FILE_SIZE: u64 = 6000000;
+const MAX_FILE_SIZE: u64 = sizes::ATLAS as u64 * 255
+    + sizes::CODE_BANK as u64 * 255
+    + sizes::RAM_BANK as u64 * 255
+    + MIN_FILE_SIZE;
 
 #[derive(Error, Debug)]
 pub enum GameFileError {
@@ -78,6 +82,19 @@ pub struct GameFile {
     pub atlas_banks: Vec<Vec<u8>>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct GameBundle {
+    pub name: String,
+    pub id: u32,
+    pub version: String,
+    pub description: String,
+    pub image: Vec<u8>,
+    pub screenshots: Vec<u8>,
+    pub age_rating: String,
+    pub special_notes: String,
+    pub file: Vec<u8>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -113,7 +130,7 @@ mod tests {
             atlas_banks: vec![],
         };
         let bytes = maikor_game.as_bytes().unwrap();
-        assert_eq!(bytes.len(), 3 + 16 + 1 + 4 + 6 + 8192);
+        assert_eq!(bytes.len(), 2+1+2+2+4+2+6+4+6+1+ 8700);
         #[rustfmt::skip]
         assert_eq!(
             &bytes[0..=18],
@@ -131,7 +148,7 @@ mod tests {
         assert_eq!(&bytes[19..=22], "Test".as_bytes());
         assert_eq!(&bytes[23..=28], "Tester".as_bytes());
         assert_eq!(&bytes[29..=29], "1".as_bytes());
-        assert_eq!(&bytes[30..], [0; 8192]);
+        assert_eq!(&bytes[30..], [0; 8700]);
     }
 
     #[test]
