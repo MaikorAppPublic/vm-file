@@ -2,6 +2,7 @@
 
 ### 0.1.3
 
+- Add `GameBundle`
 - Update `maikor-language` dep (no effect on this library)
 
 ### 0.1.2
