@@ -80,6 +80,7 @@ pub struct GameFile {
     pub main_code: Vec<u8>,
     pub code_banks: Vec<[u8; sizes::CODE_BANK as usize]>,
     pub atlas_banks: Vec<Vec<u8>>,
+    pub button_graphics: Vec<Vec<u8>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -98,6 +99,7 @@ pub struct GameBundle {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use maikor_language::input::controller_type;
     use maikor_language::mem::sizes;
     use std::io::BufReader;
 
@@ -125,12 +127,19 @@ mod tests {
             name: "Test".to_string(),
             author: "Tester".to_string(),
             ram_bank_count: 0,
-            main_code: vec![0; sizes::CODE_BANK as usize],
+            main_code: vec![3; sizes::CODE_BANK as usize],
             code_banks: vec![],
             atlas_banks: vec![],
+            button_graphics: vec![
+                vec![1; sizes::CONTROLLER_GRAPHICS as usize];
+                controller_type::COUNT
+            ],
         };
         let bytes = maikor_game.as_bytes().unwrap();
-        assert_eq!(bytes.len(), 2 + 1 + 2 + 2 + 4 + 2 + 6 + 4 + 6 + 1 + 8700);
+        assert_eq!(
+            bytes.len(),
+            2 + 1 + 2 + 2 + 4 + 2 + 6 + 4 + 6 + 1 + 8700 + 792
+        );
         #[rustfmt::skip]
         assert_eq!(
             &bytes[0..=18],
@@ -148,7 +157,14 @@ mod tests {
         assert_eq!(&bytes[19..=22], "Test".as_bytes());
         assert_eq!(&bytes[23..=28], "Tester".as_bytes());
         assert_eq!(&bytes[29..=29], "1".as_bytes());
-        assert_eq!(&bytes[30..], [0; 8700]);
+        for i in 0..controller_type::COUNT {
+            let start = 30 + i * sizes::CONTROLLER_GRAPHICS as usize;
+            assert_eq!(
+                &bytes[start..start + sizes::CONTROLLER_GRAPHICS as usize],
+                &[1; sizes::CONTROLLER_GRAPHICS as usize]
+            );
+        }
+        assert_eq!(&bytes[822..], [3; 8700]);
     }
 
     #[test]
@@ -185,7 +201,7 @@ mod tests {
         assert_eq!(summary.name, String::from("btr"));
         assert_eq!(summary.author, String::from("t"));
         assert_eq!(summary.version, String::from("01"));
-
+        bytes.extend_from_slice(&[1; sizes::CONTROLLER_GRAPHICS as usize * controller_type::COUNT]);
         bytes.extend_from_slice(&[0; sizes::CODE_BANK as usize]);
         let game = maikor_from_bytes(bytes);
         assert_eq!(game.id, 142602);
@@ -198,6 +214,10 @@ mod tests {
         assert_eq!(game.version, String::from("01"));
         assert_eq!(game.name, String::from("btr"));
         assert_eq!(game.author, String::from("t"));
+        assert_eq!(
+            game.button_graphics,
+            &[[1; sizes::CONTROLLER_GRAPHICS as usize]; controller_type::COUNT]
+        );
         assert_eq!(game.main_code, &[0; sizes::CODE_BANK as usize]);
     }
 
@@ -215,6 +235,10 @@ mod tests {
             main_code: vec![rand_u8(); sizes::CODE_BANK as usize],
             code_banks: vec![],
             atlas_banks: vec![vec![rand_u8(); sizes::ATLAS as usize], vec![rand_u8(); 500]],
+            button_graphics: vec![
+                vec![1; sizes::CONTROLLER_GRAPHICS as usize];
+                controller_type::COUNT
+            ],
         };
         let bytes = maikor_game.as_bytes().unwrap();
         #[rustfmt::skip]
@@ -226,6 +250,7 @@ mod tests {
                 + sizes::CODE_BANK as usize
                 + sizes::ATLAS as usize
                 + 500
+                + sizes::CONTROLLER_GRAPHICS as usize * controller_type::COUNT
         );
         let game = maikor_from_bytes(bytes);
         assert!(PartialEq::eq(&maikor_game, &game));

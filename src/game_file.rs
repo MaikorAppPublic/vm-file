@@ -1,6 +1,7 @@
 use crate::file_utils::{read_block, read_multiple_blocks, read_string};
 use crate::GameFileError::InvalidHeader;
 use crate::{GameFile, GameFileError, GameFileHeader, FILE_FORMAT_VER, ID_HEADER};
+use maikor_language::input::controller_type;
 use maikor_language::mem::sizes;
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, BufWriter, Write};
@@ -21,6 +22,13 @@ impl GameFile {
                 .iter()
                 .map(|arr| u16::from_be_bytes([arr[0], arr[1]]))
                 .collect();
+        let mut graphics = Vec::new();
+        for _ in 0..controller_type::COUNT {
+            graphics.push(read_block(
+                &mut reader,
+                sizes::CONTROLLER_GRAPHICS as usize,
+            )?);
+        }
         let main_code = read_block(&mut reader, sizes::CODE_BANK as usize)?;
         let code_banks = read_multiple_blocks(
             &mut reader,
@@ -47,6 +55,7 @@ impl GameFile {
             main_code,
             code_banks,
             atlas_banks,
+            button_graphics: graphics,
         })
     }
 
@@ -70,6 +79,9 @@ impl GameFile {
         writer.write_all(self.name.as_bytes())?;
         writer.write_all(self.author.as_bytes())?;
         writer.write_all(self.version.as_bytes())?;
+        for graphics in &self.button_graphics {
+            writer.write_all(graphics)?;
+        }
         writer.write_all(
             &self
                 .atlas_banks
