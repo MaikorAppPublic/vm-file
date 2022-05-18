@@ -1,8 +1,8 @@
 use crate::file_utils::{read_block, read_multiple_blocks, read_string};
 use crate::GameFileError::InvalidHeader;
 use crate::{GameFile, GameFileError, GameFileHeader, FILE_FORMAT_VER, ID_HEADER};
-use maikor_language::input::controller_type;
-use maikor_language::mem::sizes;
+use maikor_platform::input::controller_type;
+use maikor_platform::mem::sizes;
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, BufWriter, Write};
 use std::{fmt, io};

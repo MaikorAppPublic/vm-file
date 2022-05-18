@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://maikor.app"
 
 [dependencies]
-maikor-language = "0.1.15"
+maikor-platform = "0.1.17"
 thiserror = "1.0.31"
 serde = { version = "1.0.137", features = ["derive"] }
 

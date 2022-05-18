@@ -5,7 +5,7 @@ mod game_header;
 mod read_write_impl;
 
 use crate::GameFileError::{FileFormatInvalid, InvalidFileVersion};
-use maikor_language::mem::sizes;
+use maikor_platform::mem::sizes;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::io;
