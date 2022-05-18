@@ -25,6 +25,9 @@ See more at [maikor.app](https://maikor.app) and the [project homepage](https://
 [Build tools](https://github.com/MaikorAppPublic/build-tools)
 
 [REPL](https://play.vm.maikor.app)
+
+[Docs](https://docs.maikor.app)
+
 ## vm-file
 
 This library can be used to read and write Maikor game files.
