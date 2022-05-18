@@ -99,8 +99,8 @@ pub struct GameBundle {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use maikor_language::input::controller_type;
-    use maikor_language::mem::sizes;
+    use maikor_platform::input::controller_type;
+    use maikor_platform::mem::sizes;
     use std::io::BufReader;
 
     fn rand_u8() -> u8 {
