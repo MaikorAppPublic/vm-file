@@ -5,7 +5,7 @@ use crate::{GameFile, GameFileError, GameFileHeader};
 impl GameFile {
     pub fn new(
         header: GameFileHeader,
-        main_code: [u8; CODE_BANK],
+        main_code: [u8; MAIN_CODE],
         code_banks: Vec<[u8; CODE_BANK]>,
         atlases: Vec<[u8; ATLAS_BANK]>,
         controller_graphics: Vec<[u8; CONTROLLER_GRAPHICS_BANK]>,
@@ -84,15 +84,17 @@ fn convert_vec<T, const N: usize>(v: Vec<T>) -> [T; N] {
 #[cfg(test)]
 mod test {
     use crate::read_write_impl::Writeable;
-    use crate::{GameFile, GameFileHeader, ATLAS_BANK, CODE_BANK, CONTROLLER_GRAPHICS_BANK};
+    use crate::{
+        GameFile, GameFileHeader, ATLAS_BANK, CODE_BANK, CONTROLLER_GRAPHICS_BANK, MAIN_CODE,
+    };
 
     #[test]
     #[rustfmt::skip]
     fn test_write() {
         let header = GameFileHeader::new(String::from("1"), 1, 1, 1,0, String::from("a"), String::from("b"), String::from("c"), 1, 1, 1);
-        let file = GameFile::new(header, [1; CODE_BANK], vec![[2; CODE_BANK]], vec![[3; ATLAS_BANK]], vec![[4; CONTROLLER_GRAPHICS_BANK]]);
+        let file = GameFile::new(header, [1; MAIN_CODE], vec![[2; CODE_BANK]], vec![[3; ATLAS_BANK]], vec![[4; CONTROLLER_GRAPHICS_BANK]]);
         
         let bytes  = file.as_bytes().unwrap();
-        assert_eq!(bytes.len(), CODE_BANK + CODE_BANK + ATLAS_BANK + CONTROLLER_GRAPHICS_BANK + 23);
+        assert_eq!(bytes.len(), MAIN_CODE + CODE_BANK + ATLAS_BANK + CONTROLLER_GRAPHICS_BANK + 23);
     }
 }

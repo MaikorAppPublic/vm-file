@@ -14,7 +14,7 @@ const ID_HEADER: [u8; 2] = [0xFD, 0xA1];
 const MAIKOR_HEADER_LENGTH: usize = 16;
 const FILE_FORMAT_VER: u8 = 1;
 const MAX_STRING_LEN: usize = 255;
-const MIN_FILE_SIZE: u64 = MAIKOR_HEADER_LENGTH as u64 + CODE_BANK as u64 + 3;
+const MIN_FILE_SIZE: u64 = MAIKOR_HEADER_LENGTH as u64 + MAIN_CODE as u64 + 3;
 const MAX_FILE_SIZE: u64 = ATLAS_BANK as u64 * 255
     + CODE_BANK as u64 * 255
     + CONTROLLER_GRAPHICS_BANK as u64 * 9
@@ -73,7 +73,7 @@ pub struct GameFileHeader {
 pub struct GameFile {
     pub header: GameFileHeader,
     ///Main code data
-    pub main_code: [u8; CODE_BANK],
+    pub main_code: [u8; MAIN_CODE],
     ///Code bank data
     pub code_banks: Vec<[u8; CODE_BANK]>,
     ///Atlas bank data

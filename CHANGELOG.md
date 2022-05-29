@@ -1,5 +1,8 @@
 ## Pre-alpha
 
+### 0.1.9
+- Update `maikor-platform`
+
 ### 0.1.8
 - Fix bug
 
