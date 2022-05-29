@@ -17,7 +17,6 @@ const MAX_STRING_LEN: usize = 255;
 const MIN_FILE_SIZE: u64 = MAIKOR_HEADER_LENGTH as u64 + CODE_BANK as u64 + 3;
 const MAX_FILE_SIZE: u64 = ATLAS_BANK as u64 * 255
     + CODE_BANK as u64 * 255
-    + RAM_BANK as u64 * 255
     + CONTROLLER_GRAPHICS_BANK as u64 * 9
     + MIN_FILE_SIZE;
 
