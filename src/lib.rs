@@ -50,35 +50,35 @@ pub enum GameFileError {
 #[derive(Debug, Eq, PartialEq)]
 pub struct GameFileHeader {
     ///Unique ID for app
-    id: String,
+    pub id: String,
     ///Build number of app (must be equal or higher than installed version)
-    build: u32,
+    pub build: u32,
     ///Target Maikor version (used for compatibility)
-    compiled_for_maikor_version: u16,
+    pub compiled_for_maikor_version: u16,
     ///Minimum supported Maikor Version (used for compatibility)
-    min_maikor_version: u16,
+    pub min_maikor_version: u16,
     ///Number of RAM banks needed by game
-    ram_bank_count: u8,
+    pub ram_bank_count: u8,
     ///Game name
-    name: String,
+    pub name: String,
     ///Game version
-    version: String,
+    pub version: String,
     ///Game author
-    author: String,
-    code_bank_count: u8,
-    atlas_bank_count: u8,
-    controller_graphics_bank_count: u8,
+    pub author: String,
+    pub code_bank_count: u8,
+    pub atlas_bank_count: u8,
+    pub controller_graphics_bank_count: u8,
 }
 
 /// Full game file
 pub struct GameFile {
-    header: GameFileHeader,
+    pub header: GameFileHeader,
     ///Main code data
-    main_code: [u8; CODE_BANK],
+    pub main_code: [u8; CODE_BANK],
     ///Code bank data
-    code_banks: Vec<[u8; CODE_BANK]>,
+    pub code_banks: Vec<[u8; CODE_BANK]>,
     ///Atlas bank data
-    atlases: Vec<[u8; ATLAS_BANK]>,
+    pub atlases: Vec<[u8; ATLAS_BANK]>,
     ///Controller graphics data
-    controller_graphics: Vec<[u8; CONTROLLER_GRAPHICS_BANK]>,
+    pub controller_graphics: Vec<[u8; CONTROLLER_GRAPHICS_BANK]>,
 }
