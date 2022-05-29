@@ -1,5 +1,8 @@
 ## Pre-alpha
 
+### 0.1.8
+- Fix bug
+
 ### 0.1.7 
 - Fix bug
 
