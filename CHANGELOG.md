@@ -1,5 +1,8 @@
 ## Pre-alpha
 
+### 0.1.7 
+- Fix bug
+
 ### 0.1.6
 - *BREAKING CHANGE*
 - Rewrite for new format
