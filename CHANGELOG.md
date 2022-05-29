@@ -1,5 +1,9 @@
 ## Pre-alpha
 
+### 0.1.6
+- *BREAKING CHANGE*
+- Rewrite for new format
+
 ### 0.1.5
 - Update `maikor-language` dep (no effect on this library)
 

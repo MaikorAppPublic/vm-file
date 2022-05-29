@@ -1,21 +1,23 @@
-use crate::GameFileError::{FileNotFound, FileTooLarge, FileTooSmall, NotAFile};
+use crate::file_utils::ReaderExt;
+use crate::GameFileError::{
+    FieldTooLong, FileAccessError, FileNotFound, FileTooLarge, FileTooSmall, NotAFile,
+};
 use crate::{
-    FileFormatInvalid, GameFile, GameFileError, GameFileSummary, InvalidFileVersion,
-    FILE_FORMAT_VER, FILE_HEADER_LENGTH, ID_HEADER, MAX_FILE_SIZE, MIN_FILE_SIZE,
+    GameFile, GameFileError, GameFileHeader, MAX_FILE_SIZE, MAX_STRING_LEN, MIN_FILE_SIZE,
 };
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, Write};
+use std::io::{BufReader, BufWriter, Write};
 use std::path::Path;
 
 fn create_reader(path: &Path) -> Result<BufReader<File>, GameFileError> {
     validate_file(path)?;
-    let file = File::open(path)?;
+    let file = File::open(path).map_err(|e| FileAccessError(e, "reading file"))?;
     let reader = BufReader::new(file);
     Ok(reader)
 }
 
 fn create_writer(path: &Path) -> Result<BufWriter<File>, GameFileError> {
-    let file = File::open(path)?;
+    let file = File::open(path).map_err(|e| FileAccessError(e, "writing file"))?;
     let writer = BufWriter::new(file);
     Ok(writer)
 }
@@ -26,18 +28,6 @@ pub fn get_file_size(path: &Path) -> u64 {
     } else {
         0
     }
-}
-
-fn validate_header<R: BufRead>(reader: &mut R) -> Result<(), GameFileError> {
-    let mut header_bytes: [u8; FILE_HEADER_LENGTH] = [0; FILE_HEADER_LENGTH];
-    reader.read_exact(&mut header_bytes)?;
-    if header_bytes[0..=1] != ID_HEADER {
-        return Err(FileFormatInvalid());
-    }
-    if header_bytes[2] != FILE_FORMAT_VER {
-        return Err(InvalidFileVersion(header_bytes[2]));
-    }
-    Ok(())
 }
 
 fn validate_file(path: &Path) -> Result<(), GameFileError> {
@@ -57,35 +47,48 @@ fn validate_file(path: &Path) -> Result<(), GameFileError> {
     Ok(())
 }
 
-pub trait Readable {
+pub trait FileReadable {
     fn read(path: &Path) -> Result<Self, GameFileError>
+    where
+        Self: Sized + Readable,
+    {
+        validate_file(path)?;
+        let mut reader = create_reader(path)?;
+        let header = Self::from_reader(&mut reader)?;
+        Ok(header)
+    }
+}
+
+pub trait Readable {
+    fn from_reader<R: ReaderExt>(reader: &mut R) -> Result<Self, GameFileError>
     where
         Self: Sized;
 }
 
-impl Readable for GameFileSummary {
-    fn read(path: &Path) -> Result<Self, GameFileError> {
-        validate_file(path)?;
-        let reader = create_reader(path)?;
-        let header = GameFileSummary::from_reader(reader)?;
-        Ok(header)
-    }
+pub trait Writeable {
+    fn as_bytes(&self) -> Result<Vec<u8>, GameFileError>;
 }
 
-impl Readable for GameFile {
-    fn read(path: &Path) -> Result<Self, GameFileError> {
-        validate_file(path)?;
-        let mut reader = create_reader(path)?;
-        validate_header(&mut reader)?;
-        let header = GameFile::from_reader(reader)?;
-        Ok(header)
-    }
-}
+impl FileReadable for GameFileHeader {}
+
+impl FileReadable for GameFile {}
 
 impl GameFile {
     pub fn write(&self, path: &Path) -> Result<(), GameFileError> {
         let mut writer = create_writer(path)?;
-        writer.write_all(&self.as_bytes()?)?;
+        writer
+            .write_all(&self.as_bytes()?)
+            .map_err(|e| FileAccessError(e, "writing file"))?;
         Ok(())
     }
+}
+
+pub fn convert_string(field_name: &'static str, str: &str) -> Result<Vec<u8>, GameFileError> {
+    let len = str.trim().len();
+    if len > MAX_STRING_LEN {
+        return Err(FieldTooLong(field_name, MAX_STRING_LEN, len));
+    }
+    let mut bytes = str.as_bytes().to_vec();
+    bytes.insert(0, len as u8);
+    Ok(bytes)
 }

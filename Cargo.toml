@@ -1,6 +1,6 @@
 [package]
 name = "maikor-vm-file"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 authors = ["Ray Britton <raybritton@pm.me>"]
 description = "VM for playing Maikor games"
@@ -10,9 +10,5 @@ readme = "README.md"
 homepage = "https://maikor.app"
 
 [dependencies]
-maikor-platform = "0.1.17"
+maikor-platform = "0.1.25"
 thiserror = "1.0.31"
-serde = { version = "1.0.137", features = ["derive"] }
-
-[dev-dependencies]
-fastrand = "1.7.0"
