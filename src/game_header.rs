@@ -1,6 +1,6 @@
 use crate::file_utils::ReaderExt;
-use crate::read_write_impl::{convert_string, Readable, Writeable};
-use crate::GameFileError::FileAccessError;
+use crate::read_write_impl::{Readable, Writeable};
+use crate::GameFileError::{FieldTooLong, FileAccessError};
 use crate::{
     FileFormatInvalid, GameFileError, GameFileHeader, InvalidFileVersion, FILE_FORMAT_VER,
     ID_HEADER, MAX_STRING_LEN,
@@ -171,6 +171,16 @@ impl Writeable for GameFileHeader {
 
         Ok(output)
     }
+}
+
+fn convert_string(field_name: &'static str, str: &str) -> Result<Vec<u8>, GameFileError> {
+    let len = str.trim().len();
+    if len > MAX_STRING_LEN {
+        return Err(FieldTooLong(field_name, MAX_STRING_LEN, len));
+    }
+    let mut bytes = str.as_bytes().to_vec();
+    bytes.insert(0, len as u8);
+    Ok(bytes)
 }
 
 #[cfg(test)]

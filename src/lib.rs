@@ -2,7 +2,7 @@ mod constants;
 mod file_utils;
 pub mod game_file;
 pub mod game_header;
-mod read_write_impl;
+pub mod read_write_impl;
 
 use crate::constants::mem::*;
 use crate::GameFileError::{FileFormatInvalid, InvalidFileVersion};
@@ -48,7 +48,7 @@ pub enum GameFileError {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-struct GameFileHeader {
+pub struct GameFileHeader {
     ///Unique ID for app
     id: String,
     ///Build number of app (must be equal or higher than installed version)
@@ -71,7 +71,7 @@ struct GameFileHeader {
 }
 
 /// Full game file
-struct GameFile {
+pub struct GameFile {
     header: GameFileHeader,
     ///Main code data
     main_code: [u8; CODE_BANK],

@@ -1,10 +1,6 @@
 use crate::file_utils::ReaderExt;
-use crate::GameFileError::{
-    FieldTooLong, FileAccessError, FileNotFound, FileTooLarge, FileTooSmall, NotAFile,
-};
-use crate::{
-    GameFile, GameFileError, GameFileHeader, MAX_FILE_SIZE, MAX_STRING_LEN, MIN_FILE_SIZE,
-};
+use crate::GameFileError::{FileAccessError, FileNotFound, FileTooLarge, FileTooSmall, NotAFile};
+use crate::{GameFile, GameFileError, GameFileHeader, MAX_FILE_SIZE, MIN_FILE_SIZE};
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Write};
 use std::path::Path;
@@ -81,14 +77,4 @@ impl GameFile {
             .map_err(|e| FileAccessError(e, "writing file"))?;
         Ok(())
     }
-}
-
-pub fn convert_string(field_name: &'static str, str: &str) -> Result<Vec<u8>, GameFileError> {
-    let len = str.trim().len();
-    if len > MAX_STRING_LEN {
-        return Err(FieldTooLong(field_name, MAX_STRING_LEN, len));
-    }
-    let mut bytes = str.as_bytes().to_vec();
-    bytes.insert(0, len as u8);
-    Ok(bytes)
 }
