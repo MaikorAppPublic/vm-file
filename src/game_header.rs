@@ -5,7 +5,6 @@ use crate::{
     FileFormatInvalid, GameFileError, GameFileHeader, InvalidFileVersion, FILE_FORMAT_VER,
     ID_HEADER, MAX_STRING_LEN,
 };
-use maikor_platform::input::controller_type;
 
 impl GameFileHeader {
     #[allow(clippy::too_many_arguments)]
@@ -20,7 +19,6 @@ impl GameFileHeader {
         author: String,
         code_bank_count: u8,
         atlas_bank_count: u8,
-        controller_graphics_bank_count: u8,
     ) -> Self {
         Self {
             id,
@@ -33,7 +31,6 @@ impl GameFileHeader {
             author,
             code_bank_count,
             atlas_bank_count,
-            controller_graphics_bank_count,
         }
     }
 }
@@ -43,7 +40,7 @@ impl GameFileHeader {
         let mut error = String::new();
 
         if self.build == 0 {
-            error.push_str("Build ver must be at least 1\n");
+            error.push_str("Build version must be at least 1\n");
         }
         if self.compiled_for_maikor_version < self.min_maikor_version {
             error.push_str("Minimum maikor version must <= compile version\n");
@@ -67,13 +64,6 @@ impl GameFileHeader {
             error.push_str("ID must have at least one character\n");
         } else if self.id.trim().len() > MAX_STRING_LEN {
             error.push_str("ID is too long, max of 255 characters\n");
-        }
-        if self.controller_graphics_bank_count as usize != controller_type::COUNT {
-            error.push_str(&format!(
-                "Incorrect number of controller graphics (expected {}, found {})\n",
-                controller_type::COUNT,
-                self.controller_graphics_bank_count
-            ));
         }
         if self.atlas_bank_count == 0 {
             error.push_str("Must have at least one atlas bank\n");
@@ -132,9 +122,6 @@ impl Readable for GameFileHeader {
         let atlas_bank_count = reader
             .read_u8()
             .map_err(|e| FileAccessError(e, "reading atlas bank count"))?;
-        let controller_graphics_bank_count = reader
-            .read_u8()
-            .map_err(|e| FileAccessError(e, "reading controller graphics count"))?;
 
         Ok(GameFileHeader::new(
             id,
@@ -147,7 +134,6 @@ impl Readable for GameFileHeader {
             author,
             code_bank_count,
             atlas_bank_count,
-            controller_graphics_bank_count,
         ))
     }
 }
@@ -167,7 +153,6 @@ impl Writeable for GameFileHeader {
         output.push(self.code_bank_count);
         output.push(self.ram_bank_count);
         output.push(self.atlas_bank_count);
-        output.push(self.controller_graphics_bank_count);
 
         Ok(output)
     }
@@ -203,7 +188,6 @@ mod test {
             String::from("Ray Britton"),
             1,
             4,
-            9,
         );
 
         assert_eq!(
@@ -225,7 +209,6 @@ mod test {
                 1,              //code banks
                 0,              //ram banks
                 4,              //atlas banks
-                9               //controller banks
             ]
         );
     }
@@ -250,7 +233,6 @@ mod test {
             2,   //code banks
             1,   //ram banks
             88,  //atlas banks
-            9    //controller banks
         ];
         let mut reader = BufReader::new(&*bytes);
 
@@ -264,7 +246,6 @@ mod test {
         assert_eq!(header.code_bank_count, 2);
         assert_eq!(header.ram_bank_count, 1);
         assert_eq!(header.atlas_bank_count, 88);
-        assert_eq!(header.controller_graphics_bank_count, 9);
         assert_eq!(header.version, String::from("v1"));
         assert_eq!(header.author, String::from("Ray"));
     }
@@ -282,7 +263,6 @@ mod test {
             String::from("Ray Britton testing"),
             12,
             100,
-            25,
         );
 
         let bytes = header.as_bytes().unwrap();

@@ -1,5 +1,10 @@
 ## Pre-alpha
 
+### 0.1.10
+- Add atlas file
+- Remove controller graphics
+- Update `maikor-platform`
+
 ### 0.1.9
 - Update `maikor-platform`
 

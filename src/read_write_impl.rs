@@ -5,20 +5,22 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Write};
 use std::path::Path;
 
-fn create_reader(path: &Path) -> Result<BufReader<File>, GameFileError> {
-    validate_file(path)?;
+fn create_reader<P: AsRef<Path>>(path: P) -> Result<BufReader<File>, GameFileError> {
+    let path = path.as_ref();
+    validate_file(path, true)?;
     let file = File::open(path).map_err(|e| FileAccessError(e, "reading file"))?;
     let reader = BufReader::new(file);
     Ok(reader)
 }
 
-fn create_writer(path: &Path) -> Result<BufWriter<File>, GameFileError> {
+fn create_writer<P: AsRef<Path>>(path: P) -> Result<BufWriter<File>, GameFileError> {
     let file = File::open(path).map_err(|e| FileAccessError(e, "writing file"))?;
     let writer = BufWriter::new(file);
     Ok(writer)
 }
 
-pub fn get_file_size(path: &Path) -> u64 {
+pub fn get_file_size<P: AsRef<Path>>(path: P) -> u64 {
+    let path = path.as_ref();
     if let Ok(data) = path.metadata() {
         data.len()
     } else {
@@ -26,7 +28,8 @@ pub fn get_file_size(path: &Path) -> u64 {
     }
 }
 
-fn validate_file(path: &Path) -> Result<(), GameFileError> {
+pub fn validate_file<P: AsRef<Path>>(path: P, size_check: bool) -> Result<(), GameFileError> {
+    let path = path.as_ref();
     if !path.exists() {
         return Err(FileNotFound());
     }
@@ -34,21 +37,24 @@ fn validate_file(path: &Path) -> Result<(), GameFileError> {
         return Err(NotAFile());
     }
     let size = get_file_size(path);
-    if size > MAX_FILE_SIZE {
-        return Err(FileTooLarge(size));
-    }
-    if size < MIN_FILE_SIZE {
-        return Err(FileTooSmall());
+    if size_check {
+        if size > MAX_FILE_SIZE {
+            return Err(FileTooLarge(size));
+        }
+        if size < MIN_FILE_SIZE {
+            return Err(FileTooSmall());
+        }
     }
     Ok(())
 }
 
 pub trait FileReadable {
-    fn read(path: &Path) -> Result<Self, GameFileError>
+    fn read<P: AsRef<Path>>(path: P) -> Result<Self, GameFileError>
     where
         Self: Sized + Readable,
     {
-        validate_file(path)?;
+        let path = path.as_ref();
+        validate_file(path, true)?;
         let mut reader = create_reader(path)?;
         let header = Self::from_reader(&mut reader)?;
         Ok(header)
@@ -70,7 +76,7 @@ impl FileReadable for GameFileHeader {}
 impl FileReadable for GameFile {}
 
 impl GameFile {
-    pub fn write(&self, path: &Path) -> Result<(), GameFileError> {
+    pub fn write<P: AsRef<Path>>(&self, path: P) -> Result<(), GameFileError> {
         let mut writer = create_writer(path)?;
         writer
             .write_all(&self.as_bytes()?)

@@ -1,7 +1,9 @@
+pub mod atlas_file;
 mod constants;
 mod file_utils;
 pub mod game_file;
 pub mod game_header;
+pub mod manifest;
 pub mod read_write_impl;
 
 use crate::constants::mem::*;
@@ -15,10 +17,7 @@ const MAIKOR_HEADER_LENGTH: usize = 16;
 const FILE_FORMAT_VER: u8 = 1;
 const MAX_STRING_LEN: usize = 255;
 const MIN_FILE_SIZE: u64 = MAIKOR_HEADER_LENGTH as u64 + MAIN_CODE as u64 + 3;
-const MAX_FILE_SIZE: u64 = ATLAS_BANK as u64 * 255
-    + CODE_BANK as u64 * 255
-    + CONTROLLER_GRAPHICS_BANK as u64 * 9
-    + MIN_FILE_SIZE;
+const MAX_FILE_SIZE: u64 = ATLAS_BANK as u64 * 255 + CODE_BANK as u64 * 255 + MIN_FILE_SIZE;
 
 #[derive(Error, Debug)]
 pub enum GameFileError {
@@ -42,8 +41,12 @@ pub enum GameFileError {
     InvalidAtlasBanks(),
     #[error("Header validation failed:\n{0}")]
     InvalidHeader(&'static str),
-    #[error("{0} field too long, max is {1} and was {2}")]
+    #[error("{0} field is too long, max is {1} and was {2}")]
     FieldTooLong(&'static str, usize, usize),
+    #[error("Invalid Atlas file {0}")]
+    InvalidAtlas(String),
+    #[error("Error parsing manifest: {0}")]
+    ManifestParsingError(String),
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -66,7 +69,6 @@ pub struct GameFileHeader {
     pub author: String,
     pub code_bank_count: u8,
     pub atlas_bank_count: u8,
-    pub controller_graphics_bank_count: u8,
 }
 
 /// Full game file
@@ -78,6 +80,4 @@ pub struct GameFile {
     pub code_banks: Vec<[u8; CODE_BANK]>,
     ///Atlas bank data
     pub atlases: Vec<[u8; ATLAS_BANK]>,
-    ///Controller graphics data
-    pub controller_graphics: Vec<[u8; CONTROLLER_GRAPHICS_BANK]>,
 }
