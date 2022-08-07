@@ -1,3 +1,6 @@
+use crate::GameFileError;
+use crate::GameFileError::FileAccessError;
+use std::convert::TryInto;
 use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read};
@@ -51,6 +54,30 @@ pub trait ReaderExt: Read {
         self.read_exact(&mut bytes)?;
         Ok(u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
     }
+}
+
+pub fn read_sized_blocks<R: ReaderExt, const N: usize>(
+    reader: &mut R,
+    count: usize,
+) -> Result<Vec<[u8; N]>, GameFileError> {
+    let banks_list = reader
+        .read_multiple_blocks(N, count)
+        .map_err(|e| FileAccessError(e, "reading file blocks"))?;
+    let mut banks = vec![];
+    for bank in banks_list {
+        banks.push(convert_vec(bank));
+    }
+    Ok(banks)
+}
+
+pub fn convert_vec<T, const N: usize>(v: Vec<T>) -> [T; N] {
+    v.try_into().unwrap_or_else(|v: Vec<T>| {
+        panic!(
+            "Expected a Vec of length {} but it was {} (please create github issue)",
+            N,
+            v.len()
+        )
+    })
 }
 
 impl ReaderExt for BufReader<File> {}

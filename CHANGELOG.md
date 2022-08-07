@@ -1,5 +1,8 @@
 ## Pre-alpha
 
+### 0.1.11
+- Add palette file
+
 ### 0.1.10
 - Add atlas file
 - Remove controller graphics

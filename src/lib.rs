@@ -4,6 +4,7 @@ mod file_utils;
 pub mod game_file;
 pub mod game_header;
 pub mod manifest;
+pub mod palette;
 pub mod read_write_impl;
 
 use crate::constants::mem::*;
@@ -43,10 +44,12 @@ pub enum GameFileError {
     InvalidHeader(&'static str),
     #[error("{0} field is too long, max is {1} and was {2}")]
     FieldTooLong(&'static str, usize, usize),
-    #[error("Invalid Atlas file {0}")]
+    #[error("Invalid Atlas file: {0}")]
     InvalidAtlas(String),
     #[error("Error parsing manifest: {0}")]
     ManifestParsingError(String),
+    #[error("Invalid Palette file: {0}")]
+    InvalidPalette(String),
 }
 
 #[derive(Debug, Eq, PartialEq)]
